@@ -7,17 +7,16 @@ from tkinter import messagebox
 dataDiscord = mysql.connector.connect(
 	host="localhost",
 	user="root",
-	password="root",
+	password="R00t",
 	database="myDiscord"
 	)
 
 class Utilisateur:
-
 	def __init__(self):
 		dataDiscord = mysql.connector.connect(
 			host="localhost",
 			user="root",
-			password="root",
+			password="R00t",
 			database="myDiscord"
 		)
 		self.__Nom = ""
@@ -27,95 +26,127 @@ class Utilisateur:
 		self.__Pseudo = ""
 
 	def getData(self):
-		cur = dataDiscord.cursor()
-		cur.execute(f"SELECT * from utilisateur;")
-		AllDATA = cur.fetchall()
-		cur.close()
-		return AllDATA
+		curseur = dataDiscord.cursor()
+		curseur.execute(f"SELECT * from utilisateur;")
+		TouteData = curseur.fetchall()
+		curseur.close()
+		return TouteData
 
 	def getID(self, mail):
-		cur = dataDiscord.cursor()
-		cur.execute(f"SELECT ID from utilisateur where Mail = '{mail}' ;")
-		DataID = cur.fetchone()
-		cur.close()
+		curseur = dataDiscord.cursor()
+		curseur.execute(f"SELECT ID from utilisateur where Mail = '{mail}' ;")
+		DataID = curseur.fetchone()
+		curseur.close()
 		return DataID
 
 	def existence(self, mail):
 		data = self.getData()
-		for row in data:
-			# print(row[4])
-			if mail != row[4]:
+		for ligne in data:
+			# print(ligne[4])
+			if mail != ligne[4]:
 				print("Mail pas utilisée")
-			else:
-				# print("Mail utilisé")
-				return False
+		else:
+			# print("Mail utilisé")
+			return False
 
-	def inscription(self, prenom, nom, mail, mdp):
+	def doublon(self, pseudo):
+		data = self.getData()
+		for ligne in data:
+			# print(ligne[3])
+			# print(pseudo)
+			if pseudo != ligne[3]:
+				print("Pseudo pas utilisée")
+		else:
+			# print("Pseudo utilisé")
+			return False
+
+	def inscription(self, prenom, nom, pseudo, mail, mdp):
 		self.__Nom = nom
 		self.__Prenom = prenom
 		self.__validemail = mail.lower()
 		self.__Mail = self.__validemail
-		self.__Pseudo = ""
+		self.__Pseudo = pseudo
 		self.__MDP = ""
 		NomCorrect = 0
 		PrenomCorrect = 0
 		MailCorrect = 0
 		MDPCorrect = 0
-		print("test")
+		PseudoCorrect = 0
+		# print("test")
 		if self.existence(self.__validemail) != False:
-			if self.__Nom != "":
-				NomCorrect = 1
-			else:
-				NomCorrect = 0
-			if mdp != "":
-				if motdepasse(mdp) == True:
-					self.__MDP = hashlib.sha256(mdp.encode("UTF-8")).hexdigest()
-					MDPCorrect = 1
-			else:
-				MDPCorrect = 0
+			if self.doublon(self.__Pseudo) != False:
+				if self.__Nom != "":
+					NomCorrect = 1
+				else:
+					NomCorrect = 0
+				if self.__Pseudo != "":
+					PseudoCorrect = 1
+				else:
+					PseudoCorrect = 0
+				if mdp != "":
+					if motdepasse(mdp) == True:
+						self.__MDP = hashlib.sha256(mdp.encode("UTF-8")).hexdigest()
+						MDPCorrect = 1
+				else:
+					MDPCorrect = 0
 
-			if self.__Mail != "":
-				MailCorrect = 1
-			else:
-				MailCorrect = 0
+				if self.__Mail != "":
+					MailCorrect = 1
+				else:
+					MailCorrect = 0
 
-			if self.__Prenom != "":
-				PrenomCorrect = 1
+				if self.__Prenom != "":
+					PrenomCorrect = 1
+				else:
+					PrenomCorrect = 0
+				if NomCorrect == 1:
+					if PseudoCorrect ==1:
+						if PrenomCorrect == 1:
+							if MailCorrect == 1:
+								if MDPCorrect == 1:
+									# print("User créer")
+									curseur = dataDiscord.cursor()
+									curseur.execute(f"INSERT INTO utilisateur (Nom, Prenom, Pseudo, Mail, MDP) values ('{self.__Nom}', '{self.__Prenom}', '{self.__Pseudo}', '{self.__Mail}', '{self.__MDP}');")
+									dataDiscord.commit()
+									curseur.close()
 			else:
-				PrenomCorrect = 0
-			if NomCorrect == 1:
-				if PrenomCorrect == 1:
-					if MailCorrect == 1:
-						if MDPCorrect == 1:
-							cur = dataDiscord.cursor()
-							cur.execute(f"INSERT INTO utilisateur (Nom, Prenom, Mail, MDP) values ('{self.__Nom}', '{self.__Prenom}', '{self.__Mail}', '{self.__MDP}');")
-							dataDiscord.commit()
-							cur.close()
+				print("Rien ne se fait")
 		else:
 			print("Rien ne se passe")
 
 	def connexion(self, mail, mdp):
 		validemail = mail.lower()
-		self.__IDconnecte = self.getID(validemail)
-		hash = hashlib.sha256(mdp.encode('UTF-8'))
-		MDPConnection = hash.hexdigest()
+		self.IDconnecte = self.getID(validemail)
+		MDPConnection = hashlib.sha256(mdp.encode('UTF-8')).hash.hexdigest()
 		data = self.getData()
-		for row in data:
-			if row[4] == validemail and row[5] == MDPConnection:
+		for ligne in data:
+			if ligne[4] == validemail and ligne[5] == MDPConnection:
+				# print("connecté")
 				return True
-			else:
-				return False
+		else:
+			return False
 
 
 	def envoyerMessage(self, message, canal):
-		print(self.__IDconnecte[0], f"{message}", canal)
-		cur = dataDiscord.cursor()
-		cur.execute(f"INSERT INTO message (Contenu, ID_Canal, ID_Emetteur) values ('{message}', {canal}, {self.__IDconnecte[0]});")
+		# print(self.IDconnecte[0], f"{message}", canal)
+		curseur = dataDiscord.cursor()
+		curseur.execute(f"INSERT INTO message (Contenu, ID_Canal, ID_Emetteur) values ('{message}', {canal}, {self.IDconnecte[0]});")
 		dataDiscord.commit()
-		cur.close()
+		curseur.close()
 
-	# def changerPseudo(self):
-	# 	self.__Pseudo =
+	def changerPseudo(self, pseudo):
+		self.__Pseudo = pseudo
+		PseudoCorrect = 0
+		if self.doublon(self.__Pseudo) != False:
+			if self.__Pseudo != "":
+				PseudoCorrect = 1
+			else:
+				PseudoCorrect = 0
+				if PseudoCorrect == 1:
+					curseur = dataDiscord.cursor()
+					curseur.execute(f"UPDATE utilisateur SET Pseudo = '{self.__Pseudo}' where ID = {self.IDconnecte[0]};")
+					dataDiscord.commit()
+					curseur.close()
 
 
 # # Test utilisateur
@@ -123,6 +154,10 @@ User = Utilisateur()
 User.getData()
 # User.existence("{rootmail@laplateforme.io}")
 # User.inscription("Matthieu","Geley", "matthieu.geley@laplateforme.io","AzER*15sZ")
-#User.connexion("matthieu.geley@laplateforme.io","AzER*15sZ")
-User.connexion("{rootmail@laplateforme.io}","{root}")
-User.envoyerMessage("prout",5)
+# User.inscription("Test2", "Test2", "ADMINISTRATEUR","tes2t.test@laplateforme.io", "AzER*15sZ")
+# User.connexion("test.test@laplateforme.io", "AzER*15sZ")
+
+# User.connexion("matthieu.geley@laplateforme.io","AzER*15sZ")
+# User.connexion("{rootmail@laplateforme.io}","{root}")
+# User.envoyerMessage("prout",5)
+# User.changerPseudo("ADMINISTRATEUR")
