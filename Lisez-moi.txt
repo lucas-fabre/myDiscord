@@ -1,0 +1,32 @@
+
+#--------LANCEMENT DE L'APPLICATION--------#
+Lancez "Connexion.py" en premier pour afficher la fenêtre de connexion.
+Dans cette page il y aura les entrées pour se connecter ainsi qu'un bouton pour créer un compte qui ouvrira la page de création de compte.
+Rentrer les valeurs que vous voulez pour créer un compte ou copier/coller les valeurs à la fin du fichier "User.py".
+
+Une fois le compte créer ou les infos copier/coller, la fenêtre "Connexion.py" se fermera et affichera la page principale "Main.py".
+Vous trouverez toutes les infos concernant le serveur (personnes enregistrées, les canaux et le chat avec les messages ainsi que l'émetteur).
+
+#--------REMARQUES PERSONNELLES--------#
+Nous n'avons pas eu le temps d'intégrer un bouton déconnexion.
+
+#---Remarque Fabre Lucas---#
+J'ai réalisé la partie interface graphique, des fenêtres "Connexion", "Creation" et "Main" (entrées, labels, interfaces treeview, placements par .pack()
+ainsi que les méthodes de sélection et de rafraichissement des messages dans ces dernières).
+
+Quant à lui, Matthieu Geley à réalisé la partie base de données (création des tables, "intéractions" entre les tables),
+le fichier User.py (connexion, inscription, envoyer message, etc) ainsi que le fichier "Vérification.py" qui assure le niveau de sécurité des mots de passe.
+
+Concernant les fichiers non implantés (Chat.py, Client.py), c'est derniers devaient servir à:
+    Chat.py: Créer des canaux et/ou de les modifier.
+
+    Client.py: Se connecter au serveur (heberger sur l'ordinateur de Matthieu Geley) et de communiquer dans l'application à distance.
+
+J'ai été responsable de la fusion de nos codes et ai négligé l'utilisation des classes car la logique d'intégration me manque encore concernant
+le développement d'une interface graphique dans des classes.
+
+Nous avons rencontré un problème qui nous a pris beaucoup de temps et que nous ne comprenons toujours pas 
+concernant l'execution de la méthode "envoyerMessage(self, message, canal):" (fichier "User.py" ligne 142)
+dans le fichier "Main.py" (ligne 189). 
+La méthode à besoin d'un self pour être executer correctement, sans cela les paramètres "message" et "canal" prennent respectivement
+la place de "self" et "message", retournant que le paramètres "canal" est vide.
